@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/mvp.css" />
+    </head>
+    <body>
+        <ul>
+            <b>info</b>
+        </ul>
+        <ol>
+            cpu:
+            <span id="cpu">{{cpu_usage}}</span>
+        </ol>
+        <ol>
+            memory:
+            <span id="mem">{{memory_usage}}</span>
+        </ol>
+        <ul>
+            <b>RPS</b>
+        </ul>
+        <ol>
+            1s:<span id="sec"> {{requests_per_sec}}</span>
+        </ol>
+        <ol>
+            1m:<span id="min">{{requests_per_min}}</span>
+        </ol>
+        <ol>
+            1h:<span id="hour">{{requests_per_hour}}</span>
+        </ol>
+    </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script>
+        function dataUpdate() {
+            let cpu = document.getElementById('cpu');
+            let mem = document.getElementById('mem');
+            let sec = document.getElementById('sec');
+            let min = document.getElementById('min');
+            let hour = document.getElementById('hour');
+            $.ajax({
+                url: 'get_data',
+                success: function (response) {
+                    cpu.innerText = response.cpu_usage;
+                    mem.innerText = response.memory_usage;
+                    sec.innerText = response.requests_per_sec;
+                    min.innerText = response.requests_per_min;
+                    hour.innerText = response.requests_per_hour;
+                },
+            });
+        }
+        $(document).ready(function () {
+            setInterval(dataUpdate, 1000);
+        });
+    </script>
+</html>
