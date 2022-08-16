@@ -27,10 +27,8 @@ def get_post(request):
       'message': message,
     }
     print(data)
-    ip = get_client_ip(request);
-    print('ip: ', ip)
+    ip = get_client_ip(request)
     Requests.objects.create(who=ip)
-    print(Requests.objects.all())
     return JsonResponse(data)
   
 import psutil
@@ -54,12 +52,6 @@ def get_rps():
     "requests_per_sec": sec
   }
   return rps_result
-
-# schedule.every(1).seconds.do(get_rps)
-
-# while True:
-#   schedule.run_pending()
-#   time.sleep(1)
 
 def call_data(request):
   output = get_rps()

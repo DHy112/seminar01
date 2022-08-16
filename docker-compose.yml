@@ -1,14 +1,14 @@
-version: "3"
+version: '3'
 
 services:
-  # 웹 애플리케이션 설정
-  django:
-    # docker-compose와 동일한 디렉토리 내 dockerfile을 사용하여 이미지 빌드
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/hello
+    # 웹 애플리케이션 설정
+    django:
+        # docker-compose와 동일한 디렉토리 내 dockerfile을 사용하여 이미지 빌드
+        build:
+            context: .
+            dockerfile: Dockerfile
+        command: gunicorn --bind 0.0.0.0:8000 hailey.asgi 4 -k uvicorn.workers.UvicornWorker
+        ports:
+            - '8000:8000'
+        volumes:
+            - .:/hello
