@@ -7,7 +7,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        command: gunicorn --bind 0.0.0.0:8000 hailey.asgi -w 6 -k uvicorn.workers.UvicornWorker
+        command: gunicorn --bind 0.0.0.0:8000 hailey.asgi -w 1 -k uvicorn.workers.UvicornWorker
         ports:
             - '8000:8000'
         volumes:
