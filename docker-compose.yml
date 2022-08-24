@@ -12,3 +12,9 @@ services:
             - '8000:8000'
         volumes:
             - .:/hello
+        depends_on:
+            - redis
+    redis:
+        image: redis
+        ports:
+            - '6379:6379'

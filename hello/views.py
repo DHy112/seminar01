@@ -19,7 +19,7 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-r = redis.StrictRedis(host='localhost', port=6379)
+r = redis.StrictRedis(host='redis', port=6379)
 
 def get_post(request):
   if request.method =='GET':
