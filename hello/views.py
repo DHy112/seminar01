@@ -1,15 +1,14 @@
-from dataclasses import dataclass
-from re import template
-from django.http import HttpResponse, JsonResponse
+import psutil
+from django.http import JsonResponse
 from hello.models import Requests
-from django.template import loader
 from django.shortcuts import render
-import schedule, time
-
+import redis
+from django.core.cache import cache
+import uuid, time
+import pickle
 
 def index(request):
-    result = get_rps()
-    #result={}
+    result = results()
     return render(request, 'hello/index.html', result)
   
 def get_client_ip(request):
@@ -20,39 +19,57 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+r = redis.StrictRedis(host='localhost', port=6379)
+
 def get_post(request):
   if request.method =='GET':
     message = request.GET['message']
     data = {
       'message': message,
     }
-    print(data)
-    ip = get_client_ip(request)
-    Requests.objects.create(who=ip)
-    return JsonResponse(data)
-  
-import psutil
-from datetime import datetime, timedelta
+    key = uuid.uuid4()
+    time_stamp = time.time()
+    cache.set(key, time_stamp, timeout=60*60, version='')
+    return JsonResponse(data)  
 
 def get_rps():
-  now = datetime.now()
-  before_1_sec = now - timedelta(seconds=1)
-  before_1_min = now - timedelta(minutes=1)
-  before_1_hour = now - timedelta(hours=1)
-  cpu = psutil.cpu_percent();
-  memory = psutil.virtual_memory();
-  hour = Requests.objects.filter(date__range=[before_1_hour, now]).count()
-  min = Requests.objects.filter(date__range=[before_1_min, now]).count()
-  sec = Requests.objects.filter(date__range=[before_1_sec, now]).count()
-  rps_result = {
-    "cpu_usage" : cpu,
-    "memory_usage" : memory[2],
-    "requests_per_hour": hour,
-    "requests_per_min": min,
-    "requests_per_sec": sec
-  }
+  now = time.time()
+  before_1_sec = now - 1
+  before_1_min = now - 1 * 60
+  
+  all_keys = r.keys(pattern='*')
+  values = []
+  for x in all_keys :
+    values.append(pickle.loads(r.get(x)))
+  perhour = len(values)
+  permin = 0
+  persec = 0
+  for value in values:
+    if value > before_1_min:
+      permin += 1
+      if value > before_1_sec:
+        persec +=1
+  rps_result = [persec, permin, perhour]
   return rps_result
 
+def get_usage():
+  cpu = psutil.cpu_percent();
+  memory = psutil.virtual_memory();
+  usage_result = [cpu, memory[2]]
+  return usage_result
+
+def results():
+  usage = get_usage()
+  rps = get_rps()
+  output = {
+    "cpu_usage" : usage[0],
+    "memory_usage" : usage[1],
+    "sec": rps[0],
+    "min": rps[1],
+    "hour": rps[2]
+  }
+  return output
+
 def call_data(request):
-  output = get_rps()
+  output = results()
   return JsonResponse(output)

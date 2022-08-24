@@ -18,13 +18,13 @@
             <b>RPS</b>
         </ul>
         <ol>
-            1s:<span id="sec"> {{requests_per_sec}}</span>
+            1s:<span id="sec"> {{sec}}</span>
         </ol>
         <ol>
-            1m:<span id="min">{{requests_per_min}}</span>
+            1m:<span id="min">{{min}}</span>
         </ol>
         <ol>
-            1h:<span id="hour">{{requests_per_hour}}</span>
+            1h:<span id="hour">{{hour}}</span>
         </ol>
     </body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
@@ -40,9 +40,9 @@
                 success: function (response) {
                     cpu.innerText = response.cpu_usage;
                     mem.innerText = response.memory_usage;
-                    sec.innerText = response.requests_per_sec;
-                    min.innerText = response.requests_per_min;
-                    hour.innerText = response.requests_per_hour;
+                    sec.innerText = response.sec;
+                    min.innerText = response.min;
+                    hour.innerText = response.hour;
                 },
             });
         }
